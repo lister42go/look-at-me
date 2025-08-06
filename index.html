@@ -67,7 +67,6 @@
   <div id="globe"></div>
   <div id="secret" class="secret">You hear the universe breathe.</div>
 
-  <!-- Audio files (silent, just for timing) -->
   <audio id="tick" src="https://assets.mixkit.co/sfx/preview/mixkit-alarm-digital-clock-beep-989.mp3" preload="auto"></audio>
 
   <script>
@@ -86,7 +85,28 @@
         const d = new Date();
         clock.textContent = d.toLocaleTimeString();
         
-        // Say the time every minute (quiet beep)
+        // Play soft tick every minute
         if (d.getSeconds() === 0) {
-          tick.volume = 0.1;
-          tick.play().catch(e => console.log("
+          tick.play().catch(e => console.log("Audio play prevented (user interaction needed)"));
+        }
+      }, 1000);
+    }
+
+    function stopClock() {
+      clearInterval(timer);
+    }
+
+    // Pause/resume on tab visibility
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "hidden") {
+        stopClock();
+      } else {
+        startClock();
+      }
+    });
+
+    // Night mode (6 PM to 6 AM)
+    function updateTheme() {
+      const hour = new Date().getHours();
+      if (hour < 6 || hour >= 18) {
+        document.body.classList.add
