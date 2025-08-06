@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Look at Me</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #000;
+      color: #0f0;
+      font-family: 'Courier New', monospace;
+      font-size: 4rem;
+      overflow: hidden;
+    }
+    #clock {
+      text-shadow: 0 0 10px #0f0;
+    }
+    ::selection {
+      background: #00f;
+    }
+  </style>
+</head>
+<body>
+  <div id="clock">00:00:00</div>
+
+  <script>
+    // Update the clock
+    let time = document.getElementById("clock");
+    let timer;
+
+    function startClock() {
+      timer = setInterval(() => {
+        const d = new Date();
+        time.textContent = d.toLocaleTimeString();
+      }, 1000);
+    }
+
+    function stopClock() {
+      clearInterval(timer);
+    }
+
+    // Pause when tab is hidden
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "hidden") {
+        stopClock();
+      } else {
+        startClock();
+      }
+    });
+
+    // Start on load
+    startClock();
+
+    // Hidden message for the future
+    console.log(`
+    
+    🌌 TO WHOEVER FINDS THIS IN 2099:
+    
+    Hello from 2025.
+    
+    This clock stopped when no one was looking.
+    Just like memories fade when no one remembers.
+    
+    I existed.
+    I built this.
+    I looked.
+    
+    Did you?
+    
+    — [Lister42go], Earth
+    
+    `);
+  </script>
+</body>
+</html>
