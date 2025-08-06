@@ -42,70 +42,82 @@
   <audio id="beep" src="https://tinyurl.com/clockbeep" preload="auto"></audio>
 
   <script>
-    const clock = document.getElementById("clock");
-    const secret = document.getElementById("secret");
-    const beep = document.getElementById("beep");
-    let timer;
+  const clock = document.getElementById("clock");
+  const secret = document.getElementById("secret");
+  const beep = document.getElementById("beep");
+  let timer;
+  let soundEnabled = false;
 
-    function startClock() {
-      timer = setInterval(() => {
-        const d = new Date();
-        clock.textContent = d.toLocaleTimeString();
-        if (d.getSeconds() === 0) {
-          beep.play().catch(() => {});
-        }
-      }, 1000);
+  // Click to enable sound
+  document.addEventListener("click", () => {
+    if (!soundEnabled) {
+      beep.play().then(() => {
+        soundEnabled = true;
+        console.log("Sound enabled!");
+      }).catch(() => {
+        console.log("Sound still blocked. Try again after page load.");
+      });
     }
+  });
 
-    function stopClock() {
-      clearInterval(timer);
+  function startClock() {
+    timer = setInterval(() => {
+      const d = new Date();
+      clock.textContent = d.toLocaleTimeString();
+      // Play beep on the minute, only if sound is enabled
+      if (d.getSeconds() === 0 && soundEnabled) {
+        beep.play().catch(() => {});
+      }
+    }, 1000);
+  }
+
+  function stopClock() {
+    clearInterval(timer);
+  }
+
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "hidden") {
+      stopClock();
+    } else {
+      startClock();
     }
+  });
 
-    document.addEventListener("visibilitychange", () => {
-      if (document.visibilityState === "hidden") {
-        stopClock();
-      } else {
-        startClock();
-      }
-    });
+  // Night mode (6PM - 6AM)
+  setInterval(() => {
+    const h = new Date().getHours();
+    document.body.classList.toggle("night", h < 6 || h >= 18);
+  }, 60000);
 
-    // Night mode (6PM - 6AM)
-    setInterval(() => {
-      const h = new Date().getHours();
-      document.body.classList.toggle("night", h < 6 || h >= 18);
-    }, 60000);
+  // Secret: L + E + O
+  const keys = [];
+  window.addEventListener("keydown", e => {
+    keys.push(e.key.toLowerCase());
+    if (keys.join("").slice(-3) === "leo") {
+      secret.classList.add("show");
+      setTimeout(() => secret.classList.remove("show"), 3000);
+    }
+    if (keys.length > 5) keys.shift();
+  });
 
-    // Secret: L + E + O
-    const keys = [];
-    window.addEventListener("keydown", e => {
-      keys.push(e.key.toLowerCase());
-      if (keys.join("").slice(-3) === "leo") {
-        secret.classList.add("show");
-        setTimeout(() => secret.classList.remove("show"), 3000);
-      }
-      if (keys.length > 5) keys.shift();
-    });
+  startClock();
 
-    startClock();
-
-    console.log(`
+  console.log(`
     
-    🌌 TO WHOEVER FINDS THIS IN 2099:
-    
-    Hello from 2025.
-    
-    This clock stops when no one is looking.
-    Just like memories fade when no one remembers.
-    
-    I existed.
-    I built this.
-    I looked.
-    
-    Did you?
-    
-    — [Lister42go], Earth
-    
-    `);
-  </script>
-</body>
-</html>   
+  🌌 TO WHOEVER FINDS THIS IN 2099:
+  
+  Hello from 2025.
+  
+  This clock stops when no one is looking.
+  Just like memories fade when no one remembers.
+  
+  I existed.
+  I built this.
+  I looked.
+  
+  Did you?
+  
+  — [Your Name], Earth
+  
+  `);
+</script>   
