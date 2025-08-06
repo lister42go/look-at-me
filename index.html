@@ -12,31 +12,57 @@
       justify-content: center;
       align-items: center;
       background: #000;
-      color: #0f0;
+      color: #0ff;
       font-family: 'Courier New', monospace;
-      font-size: 4rem;
+      font-size: 5rem;
       overflow: hidden;
+      transition: background 2s ease;
     }
     #clock {
-      text-shadow: 0 0 10px #0f0;
+      text-shadow: 
+        0 0 5px #0ff,
+        0 0 10px #0ff,
+        0 0 20px #0ff,
+        0 0 40px #00ffff;
     }
-    ::selection {
-      background: #00f;
+    .night {
+      background: #000011;
+    }
+    .night #clock {
+      text-shadow: 
+        0 0 5px #f0f,
+        0 0 10px #f0f,
+        0 0 20px #f0f,
+        0 0 40px #f0ffff;
+      color: #f0f;
+    }
+    .secret {
+      font-size: 2rem;
+      text-align: center;
+      margin-top: 20px;
+      color: #0f0;
+      opacity: 0;
+      transition: opacity 1s;
+    }
+    .secret.show {
+      opacity: 1;
     }
   </style>
 </head>
 <body>
   <div id="clock">00:00:00</div>
+  <div id="secret" class="secret">You found the light. Keep looking.</div>
 
   <script>
-    // Update the clock
-    let time = document.getElementById("clock");
+    // Clock
+    const clock = document.getElementById("clock");
+    const secret = document.getElementById("secret");
     let timer;
 
     function startClock() {
       timer = setInterval(() => {
         const d = new Date();
-        time.textContent = d.toLocaleTimeString();
+        clock.textContent = d.toLocaleTimeString();
       }, 1000);
     }
 
@@ -44,7 +70,7 @@
       clearInterval(timer);
     }
 
-    // Pause when tab is hidden
+    // Pause/resume on tab visibility
     document.addEventListener("visibilitychange", () => {
       if (document.visibilityState === "hidden") {
         stopClock();
@@ -53,17 +79,44 @@
       }
     });
 
-    // Start on load
+    // Night mode (based on time of day)
+    function checkTime() {
+      const hour = new Date().getHours();
+      if (hour < 6 || hour >= 18) {
+        document.body.classList.add("night");
+      } else {
+        document.body.classList.remove("night");
+      }
+    }
+
+    setInterval(checkTime, 60000); // Check every minute
+    checkTime(); // Run once on load
+
+    // Secret key combo: L + E + O
+    const keys = [];
+    const secretCode = "leo";
+
+    window.addEventListener("keydown", (e) => {
+      keys.push(e.key.toLowerCase());
+      if (keys.join("").endsWith(secretCode)) {
+        secret.classList.add("show");
+        setTimeout(() => secret.classList.remove("show"), 3000);
+      }
+      // Keep only last 3 keys
+      if (keys.length > 3) keys.shift();
+    });
+
+    // Start clock
     startClock();
 
-    // Hidden message for the future
+    // Hidden message in console
     console.log(`
     
     🌌 TO WHOEVER FINDS THIS IN 2099:
     
     Hello from 2025.
     
-    This clock stopped when no one was looking.
+    This clock stops when no one is looking.
     Just like memories fade when no one remembers.
     
     I existed.
@@ -77,4 +130,4 @@
     `);
   </script>
 </body>
-</html>
+</html>   
