@@ -1,93 +1,58 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8" />
   <title>Look at Me</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     body {
-      margin: 0;
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      background: #000;
-      color: #0ff;
-      font-family: 'Courier New', monospace;
-      font-size: 5rem;
-      overflow: hidden;
-      transition: background 2s ease, color 2s ease;
+      margin:0; height:100vh; display:flex; flex-direction:column;
+      justify-content:center; align-items:center; background:#000;
+      color:#0ff; font:5rem 'Courier New'; overflow:hidden;
+      transition:2s;
     }
     #clock {
-      text-shadow: 0 0 5px #0ff, 0 0 10px #0ff, 0 0 20px #0ff;
-      margin-bottom: 20px;
-    }
-    #weather {
-      font-size: 1.5rem;
-      color: #0f0;
-      margin-top: 10px;
-      opacity: 0.8;
-    }
-    #globe {
-      width: 100px;
-      height: 100px;
-      border-radius: 50%;
-      background: url('https://images.unsplash.com/photo-1696471092488-3c931986c784?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80') center/cover;
-      border: 2px solid #0ff;
-      box-shadow: 0 0 15px #0ff;
-      margin-top: 20px;
-      animation: rotate 60s linear infinite;
-    }
-    @keyframes rotate {
-      from { transform: rotate(0deg); }
-      to { transform: rotate(360deg); }
+      text-shadow:0 0 10px #0ff, 0 0 20px #0ff;
     }
     .night {
-      background: #000011;
+      background:#000011;
     }
-    .night #clock, .night #weather {
-      color: #f0f;
-      text-shadow: 0 0 10px #f0f, 0 0 20px #f0ffff;
+    .night #clock {
+      color:#f0f; text-shadow:0 0 10px #f0f, 0 0 20px #f0ffff;
     }
+    #globe {
+      width:80px; height:80px; border-radius:50%;
+      background:url('https://tinyurl.com/earthglobe') center/cover;
+      border:2px solid #0ff; box-shadow:0 0 15px #0ff;
+      margin:20px 0; animation:rotate 60s linear infinite;
+    }
+    @keyframes rotate { from { transform:rotate(0deg); } to { transform:rotate(360deg); } }
     .secret {
-      font-size: 2rem;
-      color: #0f0;
-      opacity: 0;
-      transition: opacity 1s;
+      font-size:1.5rem; color:#0f0; opacity:0;
+      transition:opacity 1s;
     }
     .secret.show {
-      opacity: 1;
+      opacity:1;
     }
   </style>
 </head>
 <body>
   <div id="clock">00:00:00</div>
-  <div id="weather">Loading...</div>
   <div id="globe"></div>
-  <div id="secret" class="secret">You hear the universe breathe.</div>
+  <div id="secret" class="secret">You found the signal.</div>
 
-  <audio id="tick" src="https://assets.mixkit.co/sfx/preview/mixkit-alarm-digital-clock-beep-989.mp3" preload="auto"></audio>
+  <audio id="beep" src="https://tinyurl.com/clockbeep" preload="auto"></audio>
 
   <script>
-    // Elements
     const clock = document.getElementById("clock");
-    const weather = document.getElementById("weather");
     const secret = document.getElementById("secret");
-    const tick = document.getElementById("tick");
-    const globe = document.getElementById("globe");
-
+    const beep = document.getElementById("beep");
     let timer;
 
-    // Start clock
     function startClock() {
       timer = setInterval(() => {
         const d = new Date();
         clock.textContent = d.toLocaleTimeString();
-        
-        // Play soft tick every minute
         if (d.getSeconds() === 0) {
-          tick.play().catch(e => console.log("Audio play prevented (user interaction needed)"));
+          beep.play().catch(() => {});
         }
       }, 1000);
     }
@@ -96,7 +61,6 @@
       clearInterval(timer);
     }
 
-    // Pause/resume on tab visibility
     document.addEventListener("visibilitychange", () => {
       if (document.visibilityState === "hidden") {
         stopClock();
@@ -105,8 +69,43 @@
       }
     });
 
-    // Night mode (6 PM to 6 AM)
-    function updateTheme() {
-      const hour = new Date().getHours();
-      if (hour < 6 || hour >= 18) {
-        document.body.classList.add
+    // Night mode (6PM - 6AM)
+    setInterval(() => {
+      const h = new Date().getHours();
+      document.body.classList.toggle("night", h < 6 || h >= 18);
+    }, 60000);
+
+    // Secret: L + E + O
+    const keys = [];
+    window.addEventListener("keydown", e => {
+      keys.push(e.key.toLowerCase());
+      if (keys.join("").slice(-3) === "leo") {
+        secret.classList.add("show");
+        setTimeout(() => secret.classList.remove("show"), 3000);
+      }
+      if (keys.length > 5) keys.shift();
+    });
+
+    startClock();
+
+    console.log(`
+    
+    🌌 TO WHOEVER FINDS THIS IN 2099:
+    
+    Hello from 2025.
+    
+    This clock stops when no one is looking.
+    Just like memories fade when no one remembers.
+    
+    I existed.
+    I built this.
+    I looked.
+    
+    Did you?
+    
+    — [Lister42go], Earth
+    
+    `);
+  </script>
+</body>
+</html>   
