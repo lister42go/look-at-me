@@ -9,6 +9,7 @@
       margin: 0;
       height: 100vh;
       display: flex;
+      flex-direction: column;
       justify-content: center;
       align-items: center;
       background: #000;
@@ -16,30 +17,41 @@
       font-family: 'Courier New', monospace;
       font-size: 5rem;
       overflow: hidden;
-      transition: background 2s ease;
+      transition: background 2s ease, color 2s ease;
     }
     #clock {
-      text-shadow: 
-        0 0 5px #0ff,
-        0 0 10px #0ff,
-        0 0 20px #0ff,
-        0 0 40px #00ffff;
+      text-shadow: 0 0 5px #0ff, 0 0 10px #0ff, 0 0 20px #0ff;
+      margin-bottom: 20px;
+    }
+    #weather {
+      font-size: 1.5rem;
+      color: #0f0;
+      margin-top: 10px;
+      opacity: 0.8;
+    }
+    #globe {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      background: url('https://images.unsplash.com/photo-1696471092488-3c931986c784?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80') center/cover;
+      border: 2px solid #0ff;
+      box-shadow: 0 0 15px #0ff;
+      margin-top: 20px;
+      animation: rotate 60s linear infinite;
+    }
+    @keyframes rotate {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
     }
     .night {
       background: #000011;
     }
-    .night #clock {
-      text-shadow: 
-        0 0 5px #f0f,
-        0 0 10px #f0f,
-        0 0 20px #f0f,
-        0 0 40px #f0ffff;
+    .night #clock, .night #weather {
       color: #f0f;
+      text-shadow: 0 0 10px #f0f, 0 0 20px #f0ffff;
     }
     .secret {
       font-size: 2rem;
-      text-align: center;
-      margin-top: 20px;
       color: #0f0;
       opacity: 0;
       transition: opacity 1s;
@@ -51,83 +63,30 @@
 </head>
 <body>
   <div id="clock">00:00:00</div>
-  <div id="secret" class="secret">You found the light. Keep looking.</div>
+  <div id="weather">Loading...</div>
+  <div id="globe"></div>
+  <div id="secret" class="secret">You hear the universe breathe.</div>
+
+  <!-- Audio files (silent, just for timing) -->
+  <audio id="tick" src="https://assets.mixkit.co/sfx/preview/mixkit-alarm-digital-clock-beep-989.mp3" preload="auto"></audio>
 
   <script>
-    // Clock
+    // Elements
     const clock = document.getElementById("clock");
+    const weather = document.getElementById("weather");
     const secret = document.getElementById("secret");
+    const tick = document.getElementById("tick");
+    const globe = document.getElementById("globe");
+
     let timer;
 
+    // Start clock
     function startClock() {
       timer = setInterval(() => {
         const d = new Date();
         clock.textContent = d.toLocaleTimeString();
-      }, 1000);
-    }
-
-    function stopClock() {
-      clearInterval(timer);
-    }
-
-    // Pause/resume on tab visibility
-    document.addEventListener("visibilitychange", () => {
-      if (document.visibilityState === "hidden") {
-        stopClock();
-      } else {
-        startClock();
-      }
-    });
-
-    // Night mode (based on time of day)
-    function checkTime() {
-      const hour = new Date().getHours();
-      if (hour < 6 || hour >= 18) {
-        document.body.classList.add("night");
-      } else {
-        document.body.classList.remove("night");
-      }
-    }
-
-    setInterval(checkTime, 60000); // Check every minute
-    checkTime(); // Run once on load
-
-    // Secret key combo: L + E + O
-    const keys = [];
-    const secretCode = "leo";
-
-    window.addEventListener("keydown", (e) => {
-      keys.push(e.key.toLowerCase());
-      if (keys.join("").endsWith(secretCode)) {
-        secret.classList.add("show");
-        setTimeout(() => secret.classList.remove("show"), 3000);
-      }
-      // Keep only last 3 keys
-      if (keys.length > 3) keys.shift();
-    });
-
-    // Start clock
-    startClock();
-
-    // Hidden message in console
-    console.log(`
-    
-    🌌 TO WHOEVER FINDS THIS IN 2099:
-    
-    Hello from 2025.
-    
-    This clock stops when no one is looking.
-    Just like memories fade when no one remembers.
-    
-    I existed.
-    I built this.
-    I looked.
-    
-    Did you?
-    
-    — [Lister42go], Earth
-    
-    `);
-  </script>
-</body>
-</html>   
+        
+        // Say the time every minute (quiet beep)
+        if (d.getSeconds() === 0) {
+          tick.volume = 0.1;
+          tick.play().catch(e => console.log("
